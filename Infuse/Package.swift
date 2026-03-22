@@ -9,7 +9,7 @@ let package = Package(
 		.library(name: "Infuse", targets: ["Infuse"]),
 	],
 	targets: [
-		.target(name: "Infuse"),
-		.testTarget(name: "InfuseTests", dependencies: ["Infuse"]),
+		.target(name: "Infuse", path: "Sources"),
+		.testTarget(name: "InfuseTests", dependencies: ["Infuse"], path: "Tests"),
 	]
 )

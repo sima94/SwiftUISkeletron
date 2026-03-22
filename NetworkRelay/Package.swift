@@ -9,7 +9,7 @@ let package = Package(
 		.library(name: "NetworkRelay", targets: ["NetworkRelay"]),
 	],
 	targets: [
-		.target(name: "NetworkRelay"),
-		.testTarget(name: "NetworkRelayTests", dependencies: ["NetworkRelay"]),
+		.target(name: "NetworkRelay", path: "Sources"),
+		.testTarget(name: "NetworkRelayTests", dependencies: ["NetworkRelay"], path: "Tests"),
 	]
 )

@@ -9,7 +9,7 @@ let package = Package(
 		.library(name: "FormValidator", targets: ["FormValidator"]),
 	],
 	targets: [
-		.target(name: "FormValidator"),
-		.testTarget(name: "FormValidatorTests", dependencies: ["FormValidator"]),
+		.target(name: "FormValidator", path: "Sources"),
+		.testTarget(name: "FormValidatorTests", dependencies: ["FormValidator"], path: "Tests"),
 	]
 )
