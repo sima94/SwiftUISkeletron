@@ -37,14 +37,12 @@ public final class DependencyValues: @unchecked Sendable {
 			return override
 		}
 
-		let context = DependencyContext.current
-
 		switch key.scope {
 		case .singleton:
 			if let existing = singletons[id] as? K.Value {
 				return existing
 			}
-			let value = context == .test ? key.testValue : key.liveValue
+			let value = Self.resolveValue(for: key)
 			singletons[id] = value
 			return value
 
@@ -52,12 +50,22 @@ public final class DependencyValues: @unchecked Sendable {
 			if let existing = flowInstances[flowID]?[id] as? K.Value {
 				return existing
 			}
-			let value = context == .test ? key.testValue : key.liveValue
+			let value = Self.resolveValue(for: key)
 			flowInstances[flowID, default: [:]][id] = value
 			return value
 
 		case .transient:
-			return context == .test ? key.testValue : key.liveValue
+			return Self.resolveValue(for: key)
+		}
+	}
+
+	// MARK: - Value Resolution
+
+	private static func resolveValue<K: DependencyKey>(for key: K.Type) -> K.Value {
+		switch DependencyContext.current {
+		case .test: return key.testValue
+		case .preview: return key.previewValue
+		case .live: return key.liveValue
 		}
 	}
 

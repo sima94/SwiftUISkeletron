@@ -6,10 +6,16 @@
 import Testing
 @testable import Infuse
 
-// MARK: - Fixture that only provides liveValue (uses defaults)
+// MARK: - Fixtures
 
 private struct DefaultsOnlyKey: DependencyKey {
 	static var liveValue: String { "default-live" }
+}
+
+private struct PreviewKey: DependencyKey {
+	static var liveValue: String { "live" }
+	static var testValue: String { "test" }
+	static var previewValue: String { "preview" }
 }
 
 // MARK: - Tests
@@ -48,5 +54,20 @@ struct DependencyKeyTests {
 		default:
 			Issue.record("Expected .transient, got \(CounterKey.scope)")
 		}
+	}
+
+	@Test("previewValue defaults to testValue when not overridden")
+	func previewValueDefaultsToTestValue() {
+		// DefaultsOnlyKey: liveValue → testValue → previewValue (all "default-live")
+		#expect(DefaultsOnlyKey.previewValue == DefaultsOnlyKey.testValue)
+
+		// StringKey: testValue = "test", previewValue should default to "test"
+		#expect(StringKey.previewValue == StringKey.testValue)
+	}
+
+	@Test("custom previewValue overrides default")
+	func customPreviewValueOverridesDefault() {
+		#expect(PreviewKey.previewValue == "preview")
+		#expect(PreviewKey.previewValue != PreviewKey.testValue)
 	}
 }

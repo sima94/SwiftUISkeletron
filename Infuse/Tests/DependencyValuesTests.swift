@@ -98,4 +98,12 @@ struct DependencyValuesTests {
 		// OuterKey.testValue resolves StringKey inside — must not deadlock
 		#expect(value.hasPrefix("outer-"))
 	}
+
+	@Test("resolves testValue in test context")
+	func resolvesTestValueInTestContext() {
+		let value = DependencyValues.shared.resolve(StringKey.self)
+		let context = DependencyContext.current
+		let expected = context == .test ? "test" : "live"
+		#expect(value == expected)
+	}
 }
