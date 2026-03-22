@@ -1,33 +1,10 @@
 //
-//  InfuseTests.swift
+//  DependencyValuesTests.swift
 //  InfuseTests
-//
-//  Created by Stefan Simic on 19. 3. 2026..
 //
 
 import Testing
 @testable import Infuse
-
-// MARK: - Test Fixtures
-
-struct StringKey: DependencyKey {
-	static var liveValue: String { "live" }
-	static var testValue: String { "test" }
-}
-
-struct CounterKey: DependencyKey {
-	static var scope: DependencyScope { .transient }
-	static var liveValue: Int { Int.random(in: 0 ... 1000) }
-	static var testValue: Int { 42 }
-}
-
-struct FlowKey: DependencyKey {
-	static var scope: DependencyScope { .flow("testFlow") }
-	static var liveValue: String { "flow-live" }
-	static var testValue: String { "flow-test" }
-}
-
-// MARK: - Tests
 
 @Suite("DependencyValues")
 struct DependencyValuesTests {
@@ -80,21 +57,5 @@ struct DependencyValuesTests {
 		DependencyValues.shared.reset()
 		let after = DependencyValues.shared.resolve(StringKey.self)
 		#expect(after != "before-reset")
-	}
-}
-
-@Suite("Dependency property wrapper")
-struct DependencyPropertyWrapperTests {
-
-	init() {
-		DependencyValues.shared.reset()
-	}
-
-	@Test("property wrapper resolves value")
-	func propertyWrapperResolves() {
-		DependencyValues.shared.override(StringKey.self, with: "injected")
-		@Dependency(StringKey.self) var value
-		#expect(value == "injected")
-		DependencyValues.shared.removeOverride(StringKey.self)
 	}
 }
