@@ -8,6 +8,7 @@ SCHEME_UITEST = SwiftUISkeletron UITests
 TESTPLAN      = SwiftUISkeletron
 SIMULATOR     = iPhone 17 Pro
 PLATFORM      = iOS Simulator
+PKG_SCHEMES   = Infuse NetworkRelay FormValidator
 
 # Per-directory DerivedData for worktree isolation
 DERIVED_DATA ?= $(shell pwd)/DerivedData
@@ -17,7 +18,7 @@ SCREENSHOTS_DIR = $(DERIVED_DATA)/Screenshots
 VIDEO_DIR       = $(DERIVED_DATA)/Videos
 SIM_UDID        = $(shell xcrun simctl list devices booted -j | python3 -c "import sys,json; devs=[d for r in json.load(sys.stdin)['devices'].values() for d in r if d['state']=='Booted']; print(devs[0]['udid'] if devs else '')" 2>/dev/null)
 
-.PHONY: build test test-coverage test-ui test-ui-record test-ui-screenshots clean resolve format lint open
+.PHONY: build test test-packages test-coverage test-ui test-ui-record test-ui-screenshots clean resolve format lint open
 
 ## Build the Prod scheme
 build:
@@ -29,7 +30,7 @@ build:
 		-quiet \
 		build
 
-## Run all tests via the Test scheme + test plan
+## Run all tests (app + local packages)
 test:
 	xcodebuild \
 		-project "$(PROJECT)" \
@@ -38,6 +39,19 @@ test:
 		-derivedDataPath "$(DERIVED_DATA)" \
 		-testPlan "$(TESTPLAN)" \
 		test
+	@for pkg in $(PKG_SCHEMES); do \
+		echo "\n🧪 Testing $$pkg..."; \
+		cd "$(CURDIR)/$$pkg" && swift test --quiet || exit 1; \
+	done
+	@echo "\n✅ All tests passed (app + packages)."
+
+## Run only local package tests (Infuse, NetworkRelay, FormValidator)
+test-packages:
+	@for pkg in $(PKG_SCHEMES); do \
+		echo "\n🧪 Testing $$pkg..."; \
+		cd "$(CURDIR)/$$pkg" && swift test --quiet || exit 1; \
+	done
+	@echo "\n✅ All package tests passed."
 
 ## Run all tests with code coverage and print report
 test-coverage:

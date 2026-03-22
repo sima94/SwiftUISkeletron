@@ -21,3 +21,15 @@ struct FlowKey: DependencyKey {
 	static var liveValue: String { "flow-live" }
 	static var testValue: String { "flow-test" }
 }
+
+/// A dependency that resolves another dependency (tests reentrant locking).
+struct OuterKey: DependencyKey {
+	static var liveValue: String {
+		@Dependency(StringKey.self) var inner
+		return "outer-\(inner)"
+	}
+	static var testValue: String {
+		@Dependency(StringKey.self) var inner
+		return "outer-\(inner)"
+	}
+}

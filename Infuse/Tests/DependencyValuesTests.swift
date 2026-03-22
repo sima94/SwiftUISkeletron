@@ -6,7 +6,7 @@
 import Testing
 @testable import Infuse
 
-@Suite("DependencyValues")
+@Suite("DependencyValues", .serialized)
 struct DependencyValuesTests {
 
 	init() {
@@ -57,5 +57,45 @@ struct DependencyValuesTests {
 		DependencyValues.shared.reset()
 		let after = DependencyValues.shared.resolve(StringKey.self)
 		#expect(after != "before-reset")
+	}
+
+	@Test("transient scope is never cached")
+	func transientScope() {
+		// Transient keys are never stored — verify CounterKey has transient scope
+		switch CounterKey.scope {
+		case .transient:
+			break // expected
+		default:
+			Issue.record("Expected .transient, got \(CounterKey.scope)")
+		}
+
+		// Resolving twice should invoke the factory each time (not return cached)
+		// We verify by overriding, resolving, changing override, resolving again
+		DependencyValues.shared.override(CounterKey.self, with: 100)
+		#expect(DependencyValues.shared.resolve(CounterKey.self) == 100)
+
+		DependencyValues.shared.override(CounterKey.self, with: 200)
+		#expect(DependencyValues.shared.resolve(CounterKey.self) == 200)
+
+		DependencyValues.shared.removeOverride(CounterKey.self)
+	}
+
+	@Test("removeOverride restores original resolved value")
+	func removeOverrideRestoresOriginal() {
+		let original = DependencyValues.shared.resolve(StringKey.self)
+
+		DependencyValues.shared.override(StringKey.self, with: "temporary")
+		#expect(DependencyValues.shared.resolve(StringKey.self) == "temporary")
+
+		DependencyValues.shared.removeOverride(StringKey.self)
+		let restored = DependencyValues.shared.resolve(StringKey.self)
+		#expect(restored == original)
+	}
+
+	@Test("reentrant resolution does not deadlock")
+	func reentrantResolution() {
+		let value = DependencyValues.shared.resolve(OuterKey.self)
+		// OuterKey.testValue resolves StringKey inside — must not deadlock
+		#expect(value.hasPrefix("outer-"))
 	}
 }
