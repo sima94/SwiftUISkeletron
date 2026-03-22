@@ -14,6 +14,8 @@ PKG_SCHEMES   = Infuse NetworkRelay FormValidator
 DERIVED_DATA ?= $(shell pwd)/DerivedData
 
 RESULT_BUNDLE   = $(DERIVED_DATA)/TestResults.xcresult
+UI_RESULT_BUNDLE = $(DERIVED_DATA)/UITestResults.xcresult
+MERGED_BUNDLE   = $(DERIVED_DATA)/MergedResults.xcresult
 SCREENSHOTS_DIR = $(DERIVED_DATA)/Screenshots
 VIDEO_DIR       = $(DERIVED_DATA)/Videos
 SIM_UDID        = $(shell xcrun simctl list devices booted -j | python3 -c "import sys,json; devs=[d for r in json.load(sys.stdin)['devices'].values() for d in r if d['state']=='Booted']; print(devs[0]['udid'] if devs else '')" 2>/dev/null)
@@ -53,9 +55,10 @@ test-packages:
 	done
 	@echo "\n✅ All package tests passed."
 
-## Run all tests with code coverage and print report
+## Run all tests (unit + UI + packages) with code coverage and print unified report
 test-coverage:
-	@rm -rf "$(RESULT_BUNDLE)"
+	@rm -rf "$(RESULT_BUNDLE)" "$(UI_RESULT_BUNDLE)" "$(MERGED_BUNDLE)"
+	@echo "🧪 Running unit tests..."
 	xcodebuild \
 		-project "$(PROJECT)" \
 		-scheme "$(SCHEME_TEST)" \
@@ -65,8 +68,45 @@ test-coverage:
 		-enableCodeCoverage YES \
 		-resultBundlePath "$(RESULT_BUNDLE)" \
 		test
-	@echo "\n📊 Code Coverage Report:\n"
-	@xcrun xccov view --report --only-targets "$(RESULT_BUNDLE)"
+	@echo "\n🧪 Running UI tests..."
+	-xcodebuild \
+		-project "$(PROJECT)" \
+		-scheme "$(SCHEME_UITEST)" \
+		-destination 'platform=$(PLATFORM),name=$(SIMULATOR)' \
+		-derivedDataPath "$(DERIVED_DATA)" \
+		-enableCodeCoverage YES \
+		-resultBundlePath "$(UI_RESULT_BUNDLE)" \
+		test
+	@echo "\n🧪 Running package tests..."
+	@for pkg in $(PKG_SCHEMES); do \
+		cd "$(CURDIR)/$$pkg" && swift test --enable-code-coverage --quiet 2>/dev/null; \
+	done
+	@if [ -d "$(RESULT_BUNDLE)" ] && [ -d "$(UI_RESULT_BUNDLE)" ]; then \
+		xcrun xcresulttool merge \
+			"$(RESULT_BUNDLE)" "$(UI_RESULT_BUNDLE)" \
+			--output-path "$(MERGED_BUNDLE)" 2>/dev/null; \
+		REPORT_BUNDLE="$(MERGED_BUNDLE)"; \
+	elif [ -d "$(RESULT_BUNDLE)" ]; then \
+		REPORT_BUNDLE="$(RESULT_BUNDLE)"; \
+	fi; \
+	echo "\n📊 Code Coverage Report\n"; \
+	echo "── App + UI Tests ──"; \
+	xcrun xccov view --report --only-targets "$$REPORT_BUNDLE"
+	@echo "\n── Local Packages ──"
+	@for pkg in $(PKG_SCHEMES); do \
+		COV_PATH=$$(cd "$(CURDIR)/$$pkg" && swift test --show-codecov-path 2>/dev/null); \
+		if [ -f "$$COV_PATH" ]; then \
+			python3 -c "\
+import json, sys, os; \
+data = json.load(open('$$COV_PATH')); \
+files = data['data'][0]['files']; \
+src = [f for f in files if '/Tests/' not in f['filename'] and 'runner.swift' not in f['filename']]; \
+totals = {'covered': sum(f['summary']['lines']['covered'] for f in src), 'count': sum(f['summary']['lines']['count'] for f in src)}; \
+pct = (totals['covered'] / totals['count'] * 100) if totals['count'] > 0 else 0; \
+print(f'$$pkg: {pct:.1f}% ({totals[\"covered\"]}/{totals[\"count\"]} lines)'); \
+[print(f'  {os.path.basename(f[\"filename\"]):40s} {f[\"summary\"][\"lines\"][\"percent\"]:6.1f}% ({f[\"summary\"][\"lines\"][\"covered\"]}/{f[\"summary\"][\"lines\"][\"count\"]})') for f in src]" 2>/dev/null; \
+		fi; \
+	done
 
 ## Run UI tests with xcresult bundle for failure screenshots
 test-ui:
