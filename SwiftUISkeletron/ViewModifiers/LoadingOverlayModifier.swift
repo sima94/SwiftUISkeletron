@@ -18,16 +18,16 @@ struct LoadingOverlayModifier: ViewModifier {
 				.blur(radius: isLoading ? 1 : 0)
 
 			if isLoading {
-				Color.black.opacity(0.4)
+				AppColor.overlay
 					.ignoresSafeArea()
 					.transition(.opacity)
 
 				if !isProgressViewHidden {
 					ProgressView()
 						.progressViewStyle(CircularProgressViewStyle())
-						.padding(20)
+						.padding(Spacing.lg)
 						.background(.ultraThinMaterial)
-						.cornerRadius(12)
+						.cornerRadius(Radius.md)
 				}
 			}
 		}

@@ -14,6 +14,7 @@ protocol HomeListViewModelProtocol {
 	var data: [HomeListData] { get }
 	var error: Error? { get }
 
+	func startObserving()
 	func fetchData() async
 }
 

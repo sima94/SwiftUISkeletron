@@ -6,26 +6,18 @@
 //
 
 import Foundation
-import Combine
+import Infuse
 
 @MainActor
-final class ProfileViewModel: ObservableObject {
+@Observable
+final class ProfileViewModel {
 
-	@Inject var loginManager: LoginManager
+	var isLoggedIn: Bool { loginState.isLoggedIn }
 
-	@Published var isLoggedIn: Bool = false
+	@ObservationIgnored
+	@Dependency(LoginStateKey.self) var loginState
 
-	private var cancellables = Set<AnyCancellable>()
-
-	init() {
-		loginManager.$isLoggedIn
-			.receive(on: DispatchQueue.main)
-			.sink { value in
-			self.isLoggedIn = value
-		}.store(in: &cancellables)
-	}
-
-	func logout() {
-		loginManager.logout()
+	func logout() async {
+		await loginState.logout()
 	}
 }

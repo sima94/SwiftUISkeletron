@@ -8,7 +8,7 @@
 import Foundation
 
 @propertyWrapper
-struct UserDefault<Value: Codable> {
+struct UserDefault<Value: Codable>: @unchecked Sendable {
 	let key: String
 	let container: UserDefaults
 
@@ -20,12 +20,11 @@ struct UserDefault<Value: Codable> {
 	var wrappedValue: Value? {
 		get {
 			guard let data = container.data(forKey: key) else {
-				// Fallback to native types
 				return container.object(forKey: key) as? Value
 			}
 			return try? JSONDecoder().decode(Value.self, from: data)
 		}
-		set {
+		nonmutating set {
 			if let value = newValue {
 				if let primitive = value as? any NSSecureCoding {
 					container.set(primitive, forKey: key)
@@ -40,7 +39,7 @@ struct UserDefault<Value: Codable> {
 }
 
 @propertyWrapper
-struct UnwrappedUserDefault<Value: Codable> {
+struct UnwrappedUserDefault<Value: Codable>: @unchecked Sendable {
 	let key: String
 	let defaultValue: Value
 	let container: UserDefaults
@@ -60,7 +59,7 @@ struct UnwrappedUserDefault<Value: Codable> {
 
 			return container.object(forKey: key) as? Value ?? defaultValue
 		}
-		set {
+		nonmutating set {
 			if let primitive = newValue as? any NSSecureCoding {
 				container.set(primitive, forKey: key)
 			} else if let encoded = try? JSONEncoder().encode(newValue) {

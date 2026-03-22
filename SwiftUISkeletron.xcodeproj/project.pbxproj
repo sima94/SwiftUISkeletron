@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		3911B95A2DE5CD060079A231 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 3911B9592DE5CD060079A231 /* SwiftyBeaver */; };
+		39847BB32F6F3D0A00C7B5AE /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 8107D5B76E61897032092690 /* SnapshotTesting */; };
+		39A1B0032F0B00030079A231 /* Infuse in Frameworks */ = {isa = PBXBuildFile; productRef = 39A1B0022F0B00020079A231 /* Infuse */; };
+		39A1B0062F0B00060079A231 /* NetworkRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 39A1B0052F0B00050079A231 /* NetworkRelay */; };
+		39FV00012F7E00010000FV01 /* FormValidator in Frameworks */ = {isa = PBXBuildFile; productRef = 39FV00002F7E00000000FV01 /* FormValidator */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,11 +35,28 @@
 		39148C132DC15BF40004B8B1 /* SwiftUISkeletron.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUISkeletron.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		39148C232DC15BF50004B8B1 /* SwiftUISkeletronTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftUISkeletronTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		39148C2D2DC15BF50004B8B1 /* SwiftUISkeletronUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftUISkeletronUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		39FC42312F6BFA010071CEF6 /* Infuse */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Infuse; sourceTree = "<group>"; };
+		39FC42322F6BFA020071CEF6 /* NetworkRelay */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = NetworkRelay; sourceTree = "<group>"; };
+		39FV00032F7E00030000FV01 /* FormValidator */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = FormValidator; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		39FC422F2F6BF9410071CEF6 /* Exceptions for "SwiftUISkeletron" folder in "SwiftUISkeletron" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				SupportingFiles/Configs/Prod.xcconfig,
+				SupportingFiles/Configs/Test.xcconfig,
+			);
+			target = 39148C122DC15BF40004B8B1 /* SwiftUISkeletron */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		39148C152DC15BF40004B8B1 /* SwiftUISkeletron */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				39FC422F2F6BF9410071CEF6 /* Exceptions for "SwiftUISkeletron" folder in "SwiftUISkeletron" target */,
+			);
 			path = SwiftUISkeletron;
 			sourceTree = "<group>";
 		};
@@ -57,6 +78,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3911B95A2DE5CD060079A231 /* SwiftyBeaver in Frameworks */,
+				39A1B0032F0B00030079A231 /* Infuse in Frameworks */,
+				39A1B0062F0B00060079A231 /* NetworkRelay in Frameworks */,
+				39FV00012F7E00010000FV01 /* FormValidator in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,6 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39847BB32F6F3D0A00C7B5AE /* SnapshotTesting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,6 +105,9 @@
 		39148C0A2DC15BF40004B8B1 = {
 			isa = PBXGroup;
 			children = (
+				39FC42312F6BFA010071CEF6 /* Infuse */,
+				39FC42322F6BFA020071CEF6 /* NetworkRelay */,
+				39FV00032F7E00030000FV01 /* FormValidator */,
 				39148C152DC15BF40004B8B1 /* SwiftUISkeletron */,
 				39148C262DC15BF50004B8B1 /* SwiftUISkeletronTests */,
 				39148C302DC15BF50004B8B1 /* SwiftUISkeletronUITests */,
@@ -118,6 +146,9 @@
 			name = SwiftUISkeletron;
 			packageProductDependencies = (
 				3911B9592DE5CD060079A231 /* SwiftyBeaver */,
+				39A1B0022F0B00020079A231 /* Infuse */,
+				39A1B0052F0B00050079A231 /* NetworkRelay */,
+				39FV00002F7E00000000FV01 /* FormValidator */,
 			);
 			productName = SwiftUISkeletron;
 			productReference = 39148C132DC15BF40004B8B1 /* SwiftUISkeletron.app */;
@@ -141,6 +172,7 @@
 			);
 			name = SwiftUISkeletronTests;
 			packageProductDependencies = (
+				8107D5B76E61897032092690 /* SnapshotTesting */,
 			);
 			productName = SwiftUISkeletronTests;
 			productReference = 39148C232DC15BF50004B8B1 /* SwiftUISkeletronTests.xctest */;
@@ -176,8 +208,8 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
-				LastUpgradeCheck = 1620;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					39148C122DC15BF40004B8B1 = {
 						CreatedOnToolsVersion = 16.2;
@@ -203,6 +235,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				3911B9582DE5CD060079A231 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				89A622D9CA5AAA5B2029E517 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 39148C142DC15BF40004B8B1 /* Products */;
@@ -315,6 +348,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = D8F838MZ5K;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -338,6 +372,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -354,9 +389,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SwiftUISkeletron/PreviewContent\"";
-				DEVELOPMENT_TEAM = D8F838MZ5K;
 				DONT_GENERATE_INFOPLIST_FILE = NO;
 				ENABLE_PREVIEWS = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = "*.md";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -371,7 +406,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = Codefusion.SwiftUISkeletron;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Test;
@@ -384,7 +419,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D8F838MZ5K;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MARKETING_VERSION = 1.0;
@@ -404,7 +438,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D8F838MZ5K;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Codefusion.SwiftUISkeletronUITests;
@@ -453,6 +486,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = D8F838MZ5K;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -469,6 +503,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -483,9 +518,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SwiftUISkeletron/PreviewContent\"";
-				DEVELOPMENT_TEAM = D8F838MZ5K;
 				DONT_GENERATE_INFOPLIST_FILE = NO;
 				ENABLE_PREVIEWS = YES;
+				EXCLUDED_SOURCE_FILE_NAMES = "*.md";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -500,7 +535,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = Codefusion.SwiftUISkeletron;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Prod;
@@ -511,7 +546,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D8F838MZ5K;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
 				MARKETING_VERSION = 1.0;
@@ -529,7 +563,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D8F838MZ5K;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = Codefusion.SwiftUISkeletronUITests;
@@ -591,6 +624,14 @@
 				minimumVersion = 2.1.1;
 			};
 		};
+		89A622D9CA5AAA5B2029E517 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.18.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -598,6 +639,23 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3911B9582DE5CD060079A231 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
+		};
+		39A1B0022F0B00020079A231 /* Infuse */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Infuse;
+		};
+		39A1B0052F0B00050079A231 /* NetworkRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NetworkRelay;
+		};
+		39FV00002F7E00000000FV01 /* FormValidator */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FormValidator;
+		};
+		8107D5B76E61897032092690 /* SnapshotTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89A622D9CA5AAA5B2029E517 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
+			productName = SnapshotTesting;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

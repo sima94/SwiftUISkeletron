@@ -10,15 +10,13 @@ import SwiftUI
 @main
 struct SwiftUISkeletronApp: App {
 
-	let appFactory = AppFactory()
-
-	init(){
-		appFactory.registerDependences()
+	init() {
+		AppFactory.configure()
 	}
 
 	var body: some Scene {
 		WindowGroup {
-			AppMainCoordinatorView()
+			AppTabView()
 		}
 	}
 }

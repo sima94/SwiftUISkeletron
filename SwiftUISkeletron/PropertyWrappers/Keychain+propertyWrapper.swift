@@ -9,9 +9,9 @@ import Foundation
 import Security
 
 @propertyWrapper
-struct Keychain<Value: Codable> {
-	private let key: String
-	private let service: String
+struct Keychain<Value: Codable>: Sendable {
+	let key: String
+	let service: String
 
 	init(key: String, service: String = Bundle.main.bundleIdentifier ?? "DefaultService") {
 		self.key = key
@@ -22,16 +22,13 @@ struct Keychain<Value: Codable> {
 		get {
 			guard let data = readFromKeychain() else { return nil }
 
-			// Special case: Value is String
 			if Value.self == String.self, let string = String(data: data, encoding: .utf8) as? Value {
 				return string
 			}
 
-			// Attempt to decode using JSON
 			return try? JSONDecoder().decode(Value.self, from: data)
 		}
-
-		set {
+		nonmutating set {
 			guard let value = newValue else {
 				deleteFromKeychain()
 				return
@@ -42,7 +39,6 @@ struct Keychain<Value: Codable> {
 			if let stringValue = value as? String {
 				data = Data(stringValue.utf8)
 			} else {
-				// Encode all other Codable values
 				guard let encoded = try? JSONEncoder().encode(value) else { return }
 				data = encoded
 			}
@@ -71,7 +67,7 @@ struct Keychain<Value: Codable> {
 
 	private func saveToKeychain(data: Data) {
 		let query: [String: Any] = [
-			kSecClass as String:       kSecClassGenericPassword,
+			kSecClass as String: kSecClassGenericPassword,
 			kSecAttrAccount as String: key,
 			kSecAttrService as String: service
 		]
@@ -85,7 +81,7 @@ struct Keychain<Value: Codable> {
 
 	private func deleteFromKeychain() {
 		let query: [String: Any] = [
-			kSecClass as String:       kSecClassGenericPassword,
+			kSecClass as String: kSecClassGenericPassword,
 			kSecAttrAccount as String: key,
 			kSecAttrService as String: service
 		]

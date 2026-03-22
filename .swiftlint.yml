@@ -1,0 +1,40 @@
+excluded:
+  - DerivedData
+  - Infuse/.build
+  - NetworkRelay/.build
+  - Infuse/Tests
+  - NetworkRelay/Tests
+
+opt_in_rules:
+  - closure_spacing
+  - empty_count
+  - fatal_error_message
+  - first_where
+  - toggle_bool
+  - unused_import
+
+disabled_rules:
+  - type_body_length
+  - file_length
+  - function_body_length
+  - trailing_whitespace
+
+line_length:
+  warning: 140
+  error: 200
+
+identifier_name:
+  min_length:
+    warning: 1
+  max_length:
+    warning: 60
+
+nesting:
+  type_level: 3
+  function_level: 3
+
+force_cast:
+  severity: error
+
+force_unwrapping:
+  severity: warning

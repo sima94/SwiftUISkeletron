@@ -9,8 +9,7 @@ import SwiftUI
 
 struct HomeDetailsView: View {
 
-	var viewModel: HomeDetailsViewModelProtocol
-	var modalAction: () -> Void
+	@State var viewModel: HomeDetailsViewModel
 
 	var body: some View {
 		VStack {
@@ -21,7 +20,7 @@ struct HomeDetailsView: View {
 				Text("\(viewModel.data ?? "")")
 			}
 			Button("Action") {
-				modalAction()
+				viewModel.showSheetTapped()
 			}
 		}
 		.task {
@@ -31,21 +30,5 @@ struct HomeDetailsView: View {
 }
 
 #Preview {
-	HomeDetailsView(viewModel: HomeDetailsViewModelMock(isLoading: false), modalAction: { })
-}
-
-#Preview {
-	HomeDetailsView(viewModel: HomeDetailsViewModelMock(isLoading: true), modalAction: { })
-}
-
-class HomeDetailsViewModelMock: HomeDetailsViewModelProtocol {
-	var isLoading: Bool
-	var data: String?
-
-	init(isLoading: Bool = false, data: String? = "#Preview Data") {
-		self.isLoading = isLoading
-		self.data = data
-	}
-
-	func fetchData() async { }
+	HomeDetailsView(viewModel: HomeDetailsViewModel())
 }

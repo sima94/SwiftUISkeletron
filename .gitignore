@@ -1,0 +1,20 @@
+# Xcode
+DerivedData/
+build/
+*.xcuserstate
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Claude Code
+.claude/
+
+# OS
+.DS_Store
+*.swp
+*~
+
+# Secrets
+*.xcconfig.local

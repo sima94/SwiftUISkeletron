@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Data+Extensions.swift
 //  SwiftUISkeletron
 //
 //  Created by Stefan Simic on 29.4.25..

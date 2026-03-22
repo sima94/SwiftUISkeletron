@@ -6,31 +6,45 @@
 //
 
 import Foundation
+import Infuse
 
+@MainActor
 @Observable
 final class HomeListViewModel: HomeListViewModelProtocol {
 
 	var title = "Hello, World!"
 	var isLoading = false
 	var data: [HomeListData] = []
-	var error: Error?
+	var error: (any Error)?
 
-	@Inject
 	@ObservationIgnored
-	var homeService: HomeNetworkServiceProtocol
+	@Dependency(HomeRepositoryKey.self) var repository
 
-	@MainActor
+	@ObservationIgnored
+	private var observeTask: Task<Void, Never>?
+
+	func startObserving() {
+		guard observeTask == nil else { return }
+		observeTask = Task { [weak self] in
+			guard let self else { return }
+			for await items in repository.observe() {
+				self.data = items
+			}
+		}
+	}
+
 	func fetchData() async {
 		guard !isLoading else { return }
 		isLoading = true
 		defer { isLoading = false }
-		try? await Task.sleep(for: .seconds(2))
 		do {
-			let data = try await homeService.fetchHomeListData()
-			self.data = data
+			try await repository.refresh()
 		} catch {
 			self.error = error
 		}
 	}
 
+	deinit {
+		observeTask?.cancel()
+	}
 }

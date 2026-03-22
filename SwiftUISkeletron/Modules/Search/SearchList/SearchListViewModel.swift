@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 protocol SearchListViewModelProtocol {
 	var isLoading: Bool { get }
 	var searchText: String { get set }
@@ -16,6 +17,7 @@ protocol SearchListViewModelProtocol {
 	func fetchItems() async
 }
 
+@MainActor
 @Observable
 final class SearchListViewModel: SearchListViewModelProtocol {
 
@@ -27,7 +29,6 @@ final class SearchListViewModel: SearchListViewModelProtocol {
 		items.filter { $0.localizedLowercase.starts(with: searchText.localizedLowercase) }
 	}
 
-	@MainActor
 	func fetchItems() async {
 		guard !isLoading else { return }
 		isLoading = true

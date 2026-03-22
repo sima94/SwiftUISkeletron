@@ -1,0 +1,14 @@
+--indent tab
+--tabwidth 4
+--allman false
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--maxwidth 120
+--swiftversion 6.0
+--commas always
+--trimwhitespace always
+--ifdef no-indent
+--disable blankLinesAtStartOfScope
+--disable blankLinesAtEndOfScope
+--exclude DerivedData,Infuse/.build,NetworkRelay/.build

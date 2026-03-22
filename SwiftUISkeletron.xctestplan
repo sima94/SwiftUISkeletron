@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "3CF6F5A0-7D56-4BB9-8FAE-C0C093FF97B4",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:SwiftUISkeletron.xcodeproj",
+        "identifier" : "SwiftUISkeletronTests",
+        "name" : "SwiftUISkeletronTests"
+      }
+    }
+  ],
+  "version" : 1
+}

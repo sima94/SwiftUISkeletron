@@ -7,27 +7,52 @@
 
 import Foundation
 import Observation
-import SwiftUICore
+import SwiftUI
+import Infuse
 
+@MainActor
 @Observable
-class HomeDetailsViewModel: HomeDetailsViewModelProtocol {
+final class HomeDetailsViewModel: HomeDetailsViewModelProtocol {
+
+	// MARK: - Events
+
+	enum Event {
+		case showSheet
+	}
+
+	private let eventContinuation: AsyncStream<Event>.Continuation
+	let events: AsyncStream<Event>
+
+	// MARK: - State
 
 	var isLoading: Bool = false
 	var data: String?
 
-	@Inject
 	@ObservationIgnored
-	var homeService: HomeNetworkServiceProtocol
+	@Dependency(HomeNetworkServiceKey.self) var homeService
 
-	@MainActor
+	// MARK: - Init
+
+	init() {
+		var continuation: AsyncStream<Event>.Continuation!
+		events = AsyncStream { continuation = $0 }
+		eventContinuation = continuation
+	}
+
+	// MARK: - Actions
+
 	func fetchData() async {
 		isLoading = true
 		defer { isLoading = false }
-		
+
 		try? await Task.sleep(for: .seconds(2))
 
 		if let item = try? await homeService.fetchHomeDetailData(id: 1) {
 			data = item.title + "\n" + item.subtitle + "\n" + item.description
 		}
+	}
+
+	func showSheetTapped() {
+		eventContinuation.yield(.showSheet)
 	}
 }

@@ -6,39 +6,88 @@
 //
 
 import Foundation
-import Combine
+import Infuse
+import NetworkRelay
 
-final class LoginManager {
+// MARK: - Dependency Keys
 
-	@Inject var userSession: UserSessionProtocol
-
-	@Published var isLoggedIn: Bool = false
-
-	private var cancellables = Set<AnyCancellable>()
-
-	init() {
-		userSession.token
-			.removeDuplicates()
-			.map { $0 != nil }
-			.assign(to: \.isLoggedIn, on: self)
-			.store(in: &cancellables)
+struct LoginStateKey: DependencyKey {
+	static var liveValue: LoginState {
+		@Dependency(UserSessionKey.self) var userSession
+		return LoginState(userSession: userSession)
 	}
-
-	func logout() {
-		userSession.token.send(nil)
+	static var testValue: LoginState {
+		LoginState(userSession: MockUserSession())
 	}
-
 }
 
-extension LoginManager: RequestRetrier {
+struct TokenRetrierKey: DependencyKey {
+	static var liveValue: TokenRetrier {
+		@Dependency(UserSessionKey.self) var userSession
+		return TokenRetrier(userSession: userSession)
+	}
+	static var testValue: TokenRetrier {
+		TokenRetrier(userSession: MockUserSession())
+	}
+}
 
-	func retry(_ request: URLRequest, httpUrlResponse: HTTPURLResponse, for session: URLSession, dueTo error: any Error) async -> Bool {
+// MARK: - LoginState (UI-facing, @MainActor)
 
-		if httpUrlResponse.statusCode == 401 {
-			//refresh token and return true
-		}
+@MainActor
+@Observable
+final class LoginState {
 
-		return false
+	var isLoggedIn: Bool = false
+
+	@ObservationIgnored
+	let userSession: any UserSessionProtocol
+
+	@ObservationIgnored
+	private var tokenTask: Task<Void, Never>?
+
+	nonisolated init(userSession: any UserSessionProtocol) {
+		self.userSession = userSession
 	}
 
+	func startObserving() {
+		guard tokenTask == nil else { return }
+		tokenTask = Task { [weak self] in
+			guard let session = self?.userSession else { return }
+			for await token in await session.tokenStream() {
+				self?.isLoggedIn = token != nil
+			}
+		}
+	}
+
+	deinit {
+		tokenTask?.cancel()
+	}
+
+	func logout() async {
+		await userSession.setToken(nil)
+	}
+}
+
+// MARK: - TokenRetrier (Sendable, for networking layer)
+
+final class TokenRetrier: RequestRetrier, Sendable {
+
+	let userSession: any UserSessionProtocol
+	let networkingService: NetworkingServiceProtocol
+
+	init(userSession: any UserSessionProtocol) {
+		self.userSession = userSession
+		@Dependency(UnauthorizedNetworkServiceKey.self) var networkingService
+		self.networkingService = networkingService
+	}
+
+	func retry(_ request: URLRequest, httpUrlResponse: HTTPURLResponse, for session: URLSession, dueTo error: any Error) async -> Bool {
+		if httpUrlResponse.statusCode == 401 {
+			// refresh token and return true
+			// let token net.fetchRequest(RefreshToken)
+			// userSession.setToken(<#T##token: OAuthToken?##OAuthToken?#>)
+			return true
+		}
+		return false
+	}
 }

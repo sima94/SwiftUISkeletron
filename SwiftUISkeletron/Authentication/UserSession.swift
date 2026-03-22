@@ -6,38 +6,85 @@
 //
 
 import Foundation
-import Combine
+import Infuse
+import NetworkRelay
 
-protocol UserSessionProtocol: AnyObject, RequestAdapter {
-	var token: CurrentValueSubject<OAuthToken?, Never> { get set}
+protocol UserSessionProtocol: Sendable, RequestAdapter {
+	var currentToken: OAuthToken? { get async }
+	func setToken(_ token: OAuthToken?) async
+	func tokenStream() async -> AsyncStream<OAuthToken?>
 }
 
-final class UserSession: UserSessionProtocol {
+// MARK: - Dependency Key
 
-	@Keychain(key: "token")
-	var storedToken: OAuthToken?
+struct UserSessionKey: DependencyKey {
+	static var liveValue: any UserSessionProtocol { UserSession() }
+	static var testValue: any UserSessionProtocol { MockUserSession() }
+}
 
-	var token: CurrentValueSubject<OAuthToken?, Never>
+// MARK: - Mock (for tests)
 
-	private var cancellables = Set<AnyCancellable>()
+actor MockUserSession: UserSessionProtocol {
+	private var token: OAuthToken?
 
-	init() {
-		token = .init(nil)
-		token.send(storedToken)
-		token.sink { [weak self] token in
-			self?.storedToken = token
-		}.store(in: &cancellables)
+	var currentToken: OAuthToken? { token }
+
+	func setToken(_ token: OAuthToken?) {
+		self.token = token
 	}
 
+	func tokenStream() -> AsyncStream<OAuthToken?> {
+		AsyncStream { $0.yield(nil) }
+	}
+
+	nonisolated func adapt(_ urlRequest: URLRequest, for session: URLSession) async -> URLRequest {
+		urlRequest
+	}
 }
 
-extension UserSession: RequestAdapter {
+// MARK: - UserSession
 
-	func adapt(_ urlRequest: URLRequest, for session: URLSession) async -> URLRequest {
+actor UserSession: UserSessionProtocol {
+
+	private let keychain = Keychain<OAuthToken>(key: "token")
+
+	private var token: OAuthToken?
+	private var continuations: [UUID: AsyncStream<OAuthToken?>.Continuation] = [:]
+
+	init() {
+		self.token = keychain.wrappedValue
+	}
+
+	var currentToken: OAuthToken? { token }
+
+	func setToken(_ newToken: OAuthToken?) {
+		token = newToken
+		keychain.wrappedValue = newToken
+		for (_, continuation) in continuations {
+			continuation.yield(newToken)
+		}
+	}
+
+	func tokenStream() -> AsyncStream<OAuthToken?> {
+		let currentToken = token
+		return AsyncStream { continuation in
+			let id = UUID()
+			continuation.yield(currentToken)
+			self.continuations[id] = continuation
+			continuation.onTermination = { [weak self] _ in
+				Task { await self?.removeContinuation(id) }
+			}
+		}
+	}
+
+	private func removeContinuation(_ id: UUID) {
+		continuations[id] = nil
+	}
+
+	nonisolated func adapt(_ urlRequest: URLRequest, for session: URLSession) async -> URLRequest {
 		var urlRequest = urlRequest
-		
-		urlRequest.allHTTPHeaderFields?["Authorization"] = "Bearer \(token.value?.refreshToken ?? "")"
-
+		let token = await currentToken
+		urlRequest.allHTTPHeaderFields?["Authorization"] = "Bearer \(token?.refreshToken ?? "")"
 		return urlRequest
 	}
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 protocol HomeDetailsViewModelProtocol {
 
 	var isLoading: Bool { get }

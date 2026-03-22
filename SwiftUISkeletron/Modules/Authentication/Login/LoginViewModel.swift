@@ -6,22 +6,31 @@
 //
 
 import Foundation
+import FormValidator
+import Infuse
 
-//protocol LoginViewModelProtocol: AnyObject {
-//	var username: FormField<String> { get set }
-//	var password: FormField<String> { get set }
-//	var isLoginInProgress: Bool { get }
-//}
-
+@MainActor
 @Observable
 final class LoginViewModel {
 
+	// MARK: - Events
+
+	enum Event {
+		case loginSucceeded
+		case showRegister
+	}
+
+	private let eventContinuation: AsyncStream<Event>.Continuation
+	let events: AsyncStream<Event>
+
+	// MARK: - State
+
 	@ObservationIgnored
-	@FormField(rules: [StringLengthRule.required()], autoValidate: false)
+	@FormField(rules: [Rules.required()])
 	var username: String = ""
 
 	@ObservationIgnored
-	@FormField(rules: [StringLengthRule.required(), StringLengthRule.password()], autoValidate: true)
+	@FormField(rules: [Rules.required(), Rules.password()], autoValidate: true)
 	var password: String = ""
 
 	var isLoginInProgress: Bool = false
@@ -29,33 +38,37 @@ final class LoginViewModel {
 	@ObservationIgnored
 	var formValidator = FormValidator()
 
-	@Inject
 	@ObservationIgnored
-	var loginManager: LoginManager
+	@Dependency(LoginStateKey.self) var loginState
 
-	@Inject(.flow(.authentication))
 	@ObservationIgnored
-	var authenticationService: AuthenticationServiceProtocol
+	@Dependency(AuthServiceKey.self) var authenticationService
 
-	var finishLogin: () -> Void
+	// MARK: - Init
 
-	init(finishLogin: @escaping () -> Void) {
-		self.finishLogin = finishLogin
-		formValidator.register(_username)
-		formValidator.register(_password)
+	init() {
+		var continuation: AsyncStream<Event>.Continuation!
+		events = AsyncStream { continuation = $0 }
+		eventContinuation = continuation
 	}
 
-	@MainActor
+	// MARK: - Actions
+
 	func login() async {
 		guard !isLoginInProgress else { return }
-		guard formValidator.validate() else { return }
+		guard formValidator.validate(in: self) else { return }
 		isLoginInProgress = true
 		defer { isLoginInProgress = false }
 		do {
 			try await authenticationService.loginUser(username: username, password: password)
+			DependencyValues.shared.endFlow(.authentication)
+			eventContinuation.yield(.loginSucceeded)
 		} catch {
 			log.debug("Login error: \(error)")
 		}
-		finishLogin()
+	}
+
+	func registerTapped() {
+		eventContinuation.yield(.showRegister)
 	}
 }

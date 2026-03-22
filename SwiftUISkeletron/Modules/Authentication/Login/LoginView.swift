@@ -10,7 +10,6 @@ import SwiftUI
 struct LoginView: View {
 
 	@State var viewModel: LoginViewModel
-	var showRegister: () -> Void
 
 	var body: some View {
 		VStack {
@@ -18,19 +17,19 @@ struct LoginView: View {
 				Text("Login")
 				TextField("Username", text: $viewModel.username)
 				if let error = viewModel.$username.error?.message {
-					Text(error).foregroundColor(.red)
+					Text(error).foregroundColor(AppColor.errorText)
 				}
 
 				TextField("Password", text: $viewModel.password)
 				if let error = viewModel.$password.error?.message {
-					Text(error).foregroundColor(.red)
+					Text(error).foregroundColor(AppColor.errorText)
 				}
 
 				Spacer(minLength: 200)
 				Text("Test")
 			}
 
-			VStack(spacing: 20) {
+			VStack(spacing: Spacing.lg) {
 				Button(action: {
 					Task {
 						await viewModel.login()
@@ -47,20 +46,20 @@ struct LoginView: View {
 					.frame(maxWidth:.infinity)
 				}
 				.tint(.white)
-				.background(.blue)
+				.background(AppColor.primaryAction)
 
 				Button(action: {
-					showRegister()
+					viewModel.registerTapped()
 				}) {
 					Text("Go to Register")
 						.padding()
 						.frame(maxWidth:.infinity)
 				}
 				.tint(.white)
-				.background(.blue)
+				.background(AppColor.primaryAction)
 			}
-			.padding(.horizontal, 20)
-			.padding(.bottom, 20)
+			.padding(.horizontal, Spacing.lg)
+			.padding(.bottom, Spacing.lg)
 
 		}
 		.loadingOverlay(viewModel.isLoginInProgress)
@@ -68,6 +67,6 @@ struct LoginView: View {
 	}
 }
 
-//#Preview {
-//	LoginView(viewModel: LoginViewModel(navigationDelegate: LoginViewNavigationDelegatePreview()))
-//}
+#Preview {
+	LoginView(viewModel: LoginViewModel())
+}
