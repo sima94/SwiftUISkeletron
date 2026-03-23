@@ -20,7 +20,7 @@ SCREENSHOTS_DIR = $(DERIVED_DATA)/Screenshots
 VIDEO_DIR       = $(DERIVED_DATA)/Videos
 SIM_UDID        = $(shell xcrun simctl list devices booted -j | python3 -c "import sys,json; devs=[d for r in json.load(sys.stdin)['devices'].values() for d in r if d['state']=='Booted']; print(devs[0]['udid'] if devs else '')" 2>/dev/null)
 
-.PHONY: build test test-packages test-coverage test-ui test-ui-record test-ui-screenshots clean resolve format lint open
+.PHONY: build test test-packages test-coverage coverage-html test-ui test-ui-record test-ui-screenshots clean resolve format lint open
 
 ## Build the Prod scheme
 build:
@@ -107,6 +107,22 @@ print(f'$$pkg: {pct:.1f}% ({totals[\"covered\"]}/{totals[\"count\"]} lines)'); \
 [print(f'  {os.path.basename(f[\"filename\"]):40s} {f[\"summary\"][\"lines\"][\"percent\"]:6.1f}% ({f[\"summary\"][\"lines\"][\"covered\"]}/{f[\"summary\"][\"lines\"][\"count\"]})') for f in src]" 2>/dev/null; \
 		fi; \
 	done
+
+## Generate unified HTML coverage report (run make test-coverage first)
+## Sources: SwiftUISkeletron.app from merged xcresult (unit+UI), packages from swift test
+coverage-html:
+	@BUNDLE="$(MERGED_BUNDLE)"; \
+	if [ ! -d "$$BUNDLE" ]; then BUNDLE="$(RESULT_BUNDLE)"; fi; \
+	if [ ! -d "$$BUNDLE" ]; then \
+		echo "❌ No xcresult bundle found. Run 'make test-coverage' first."; exit 1; \
+	fi; \
+	echo "📊 Generating unified HTML coverage report..."; \
+	python3 scripts/generate_html_coverage.py \
+		--xcresult "$$BUNDLE" \
+		--output   coverage-html \
+		--packages $(PKG_SCHEMES) \
+		--project-root "$(CURDIR)"; \
+	open coverage-html/index.html
 
 ## Run UI tests with xcresult bundle for failure screenshots
 test-ui:
