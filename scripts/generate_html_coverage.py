@@ -121,18 +121,33 @@ a{color:#4fc3f7;text-decoration:none}a:hover{text-decoration:underline}
 .hdr .sub{color:#9e9e9e;font-size:12px}
 .pbar{height:6px;background:#3e3e42;border-radius:3px;margin-top:8px}
 .pfill{height:100%;border-radius:3px}
+/* Search bar */
+.search-wrap{padding:10px 20px;background:#252526;border-bottom:1px solid #3e3e42;
+             display:flex;align-items:center;gap:10px}
+.search-wrap input{flex:1;background:#3c3c3c;border:1px solid #555;border-radius:6px;
+                   color:#d4d4d4;font-size:13px;padding:6px 10px;outline:none}
+.search-wrap input:focus{border-color:#4fc3f7}
+.search-wrap input::placeholder{color:#666}
+.search-info{color:#858585;font-size:12px;white-space:nowrap}
+/* Table */
 table{width:100%;border-collapse:collapse}
 th{background:#2d2d30;padding:7px 12px;text-align:left;
-   border-bottom:1px solid #3e3e42;position:sticky;top:0;font-weight:600}
+   border-bottom:1px solid #3e3e42;position:sticky;top:0;font-weight:600;
+   user-select:none}
+th.sortable{cursor:pointer}
+th.sortable:hover{background:#3a3a3d;color:#fff}
+th.sorted{color:#4fc3f7}
+.sort-arrow{margin-left:4px;opacity:.7}
 td{padding:5px 12px;border-bottom:1px solid #252526}
 tr:hover td{background:#2a2d2e}
 .pct{font-weight:700;width:64px}
-.lines{width:80px;color:#858585}
-.barcell{width:140px}
+.lines{width:90px;color:#858585}
+.barcell{width:150px}
 .bg{height:10px;background:#3e3e42;border-radius:5px}
 .fg{height:100%;border-radius:5px}
-.grp th{background:#1a3a2a;color:#9cdcb0;font-size:11px;letter-spacing:.05em;
-        text-transform:uppercase;padding:4px 12px}
+.grp-row td{background:#1a3a2a;color:#9cdcb0;font-size:11px;letter-spacing:.05em;
+            text-transform:uppercase;padding:4px 12px;font-weight:600}
+.no-results{padding:20px;text-align:center;color:#666}
 /* File view */
 .fhdr{background:#252526;padding:12px 20px;border-bottom:1px solid #3e3e42;
       position:sticky;top:0}
@@ -225,37 +240,130 @@ def generate_index(groups, output_dir):
     total_exec = sum(e["executable"] for _, entries in groups for e in entries)
     total_pct = (total_cov / total_exec * 100) if total_exec else 0.0
     tc = _color(total_pct)
+    total_files = sum(len(e) for _, e in groups)
 
-    sections = []
+    # Build flat JSON data for JS (preserving group membership)
+    js_entries = []
     for gname, entries in groups:
-        g_cov = sum(e["covered"] for e in entries)
-        g_exec = sum(e["executable"] for e in entries)
-        g_pct = (g_cov / g_exec * 100) if g_exec else 0.0
-        gc = _color(g_pct)
-
-        rows = []
-        for e in sorted(entries, key=lambda x: x["coverage"]):
+        for e in entries:
             p = e["coverage"] * 100
-            c = _color(p)
-            rows.append(
-                f'<tr>'
-                f'<td><a href="{html.escape(e["html_file"])}">'
-                f'{html.escape(e["display"])}</a></td>'
-                f'<td class="pct" style="color:{c}">{p:.1f}%</td>'
-                f'<td class="lines">{e["covered"]}/{e["executable"]}</td>'
-                f'<td class="barcell">'
-                f'<div class="bg"><div class="fg" style="width:{p:.1f}%;background:{c}"></div></div>'
-                f'</td></tr>'
-            )
+            js_entries.append({
+                "file":       os.path.basename(e["display"]),
+                "display":    e["display"],
+                "href":       e["html_file"],
+                "coverage":   round(e["coverage"] * 100, 1),
+                "covered":    e["covered"],
+                "executable": e["executable"],
+                "group":      gname,
+            })
 
-        sections.append(
-            f'<tr class="grp"><th colspan="4">'
-            f'{html.escape(gname)} &nbsp;'
-            f'<span style="color:{gc};font-weight:700">{g_pct:.1f}%</span>'
-            f' ({g_cov}/{g_exec})'
-            f'</th></tr>'
-            + "".join(rows)
-        )
+    js_data = json.dumps(js_entries, ensure_ascii=False)
+
+    _JS = r"""
+const ALL = ENTRIES_DATA;
+let sortCol = null, sortDir = 1;   // 1=asc, -1=desc
+let query = "";
+
+function color(p){
+  return p>=80?"#4ec9b0":p>=50?"#dcdcaa":"#f44747";
+}
+
+function bar(p){
+  const c=color(p);
+  return `<div class="bg"><div class="fg" style="width:${p}%;background:${c}"></div></div>`;
+}
+
+function render(){
+  const tbody = document.getElementById("tbody");
+  const info  = document.getElementById("search-info");
+  const q = query.toLowerCase();
+
+  // Filter
+  let rows = q ? ALL.filter(e =>
+    e.display.toLowerCase().includes(q) || e.file.toLowerCase().includes(q)
+  ) : ALL;
+
+  // Sort
+  if(sortCol !== null){
+    rows = [...rows].sort((a,b)=>{
+      let va = a[sortCol], vb = b[sortCol];
+      if(typeof va==="string") va=va.toLowerCase(), vb=vb.toLowerCase();
+      return va<vb ? -sortDir : va>vb ? sortDir : 0;
+    });
+  }
+
+  info.textContent = q
+    ? `${rows.length} / ${ALL.length} files`
+    : `${ALL.length} files`;
+
+  if(!rows.length){
+    tbody.innerHTML = '<tr><td colspan="4" class="no-results">No files match your search.</td></tr>';
+    return;
+  }
+
+  const html = [];
+  // Grouped view (no active sort, no search)
+  if(sortCol === null && !q){
+    let lastGroup = null;
+    for(const e of ALL){
+      if(e.group !== lastGroup){
+        lastGroup = e.group;
+        const gc = groupStats[e.group];
+        html.push(`<tr class="grp-row"><td colspan="4">${esc(e.group)}&nbsp;`+
+          `<span style="color:${color(gc.pct)};font-weight:700">${gc.pct.toFixed(1)}%</span>`+
+          ` (${gc.covered}/${gc.executable})</td></tr>`);
+      }
+      html.push(rowHtml(e));
+    }
+  } else {
+    for(const e of rows) html.push(rowHtml(e));
+  }
+
+  tbody.innerHTML = html.join("");
+}
+
+function rowHtml(e){
+  const p = e.coverage, c = color(p);
+  return `<tr>`+
+    `<td><a href="${e.href}">${esc(e.display)}</a></td>`+
+    `<td class="pct" style="color:${c}">${p.toFixed(1)}%</td>`+
+    `<td class="lines">${e.covered}/${e.executable}</td>`+
+    `<td class="barcell">${bar(p)}</td>`+
+    `</tr>`;
+}
+
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+function setSort(col){
+  if(sortCol===col){ sortDir*=-1; }
+  else { sortCol=col; sortDir = (col==="file") ? 1 : -1; }
+  document.querySelectorAll("th.sortable").forEach(th=>{
+    const arrow = th.dataset.col===col
+      ? (sortDir===1?" ↑":" ↓") : "";
+    th.querySelector(".sort-arrow").textContent = arrow;
+    th.classList.toggle("sorted", th.dataset.col===col);
+  });
+  render();
+}
+
+// Pre-compute group stats for headers
+const groupStats = {};
+ALL.forEach(e=>{
+  if(!groupStats[e.group]) groupStats[e.group]={covered:0,executable:0,pct:0};
+  groupStats[e.group].covered    += e.covered;
+  groupStats[e.group].executable += e.executable;
+});
+Object.values(groupStats).forEach(g=>{
+  g.pct = g.executable ? g.covered/g.executable*100 : 0;
+});
+
+document.getElementById("search").addEventListener("input", e=>{
+  query = e.target.value;
+  render();
+});
+
+render();
+"""
 
     page = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8">
@@ -268,12 +376,27 @@ def generate_index(groups, output_dir):
   <div class="sub">{total_cov}/{total_exec} executable lines covered</div>
   {_progress_html(total_pct, 8)}
 </div>
+<div class="search-wrap">
+  <input id="search" type="text" placeholder="Search files…" autocomplete="off" autofocus>
+  <span class="search-info" id="search-info">{total_files} files</span>
+</div>
 <table>
 <thead><tr>
-  <th>File</th><th>Coverage</th><th>Lines</th><th>Distribution</th>
+  <th class="sortable" data-col="display" onclick="setSort('display')">
+    File<span class="sort-arrow"></span></th>
+  <th class="sortable" data-col="coverage" onclick="setSort('coverage')">
+    Coverage<span class="sort-arrow"></span></th>
+  <th class="sortable" data-col="covered" onclick="setSort('covered')">
+    Lines<span class="sort-arrow"></span></th>
+  <th class="sortable" data-col="executable" onclick="setSort('executable')">
+    Distribution<span class="sort-arrow"></span></th>
 </tr></thead>
-<tbody>{''.join(sections)}</tbody>
+<tbody id="tbody"></tbody>
 </table>
+<script>
+const ENTRIES_DATA = {js_data};
+{_JS}
+</script>
 </body></html>"""
 
     with open(os.path.join(output_dir, "index.html"), "w") as f:
