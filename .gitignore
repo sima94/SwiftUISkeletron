@@ -16,5 +16,8 @@ build/
 *.swp
 *~
 
+# Coverage reports (generated)
+coverage-html/
+
 # Secrets
 *.xcconfig.local

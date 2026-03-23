@@ -1,0 +1,23 @@
+# Slather configuration for SwiftUISkeletron
+# Generates HTML code coverage report from xcresult bundles
+
+project: SwiftUISkeletron.xcodeproj
+scheme: SwiftUISkeletron Test
+workspace:
+build_directory: DerivedData
+
+# Output format
+html: true
+output_directory: coverage-html
+
+# Only report on app source (exclude tests and SPM packages)
+source_files: SwiftUISkeletron/**/*.swift
+ignore:
+  - "SwiftUISkeletronTests/*"
+  - "SwiftUISkeletronUITests/*"
+  - "DerivedData/*"
+  - "Infuse/*"
+  - "NetworkRelay/*"
+  - "FormValidator/*"
+  - "*/checkouts/*"
+  - "*/SourcePackages/*"

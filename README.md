@@ -250,7 +250,8 @@ Page Object Model pattern for readable, maintainable tests:
 |---|---|
 | `make build` | Build Prod scheme (iPhone 17 Pro simulator) |
 | `make test` | Run all tests (SwiftUISkeletronTests) |
-| `make test-coverage` | Run tests with code coverage report |
+| `make test-coverage` | Run all tests (unit + UI + packages) with code coverage report |
+| `make coverage-html` | Generate unified HTML coverage report → `coverage-html/index.html` |
 | `make test-ui` | Run UI tests, auto-extract failure screenshots |
 | `make test-ui-record` | Run UI tests with video recording + frame extraction |
 | `make clean` | Remove DerivedData |
