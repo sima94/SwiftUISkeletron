@@ -267,59 +267,74 @@ let query = "";
 function color(p){
   return p>=80?"#4ec9b0":p>=50?"#dcdcaa":"#f44747";
 }
-
 function bar(p){
   const c=color(p);
   return `<div class="bg"><div class="fg" style="width:${p}%;background:${c}"></div></div>`;
 }
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+// Pre-compute group order and stats
+const groupOrder = [];
+const groupStats = {};
+ALL.forEach(e=>{
+  if(!groupStats[e.group]){
+    groupOrder.push(e.group);
+    groupStats[e.group] = {covered:0, executable:0, pct:0};
+  }
+  groupStats[e.group].covered    += e.covered;
+  groupStats[e.group].executable += e.executable;
+});
+Object.values(groupStats).forEach(g=>{
+  g.pct = g.executable ? g.covered/g.executable*100 : 0;
+});
 
 function render(){
   const tbody = document.getElementById("tbody");
   const info  = document.getElementById("search-info");
   const q = query.toLowerCase();
 
-  // Filter
-  let rows = q ? ALL.filter(e =>
-    e.display.toLowerCase().includes(q) || e.file.toLowerCase().includes(q)
-  ) : ALL;
-
-  // Sort
-  if(sortCol !== null){
-    rows = [...rows].sort((a,b)=>{
-      let va = a[sortCol], vb = b[sortCol];
-      if(typeof va==="string") va=va.toLowerCase(), vb=vb.toLowerCase();
-      return va<vb ? -sortDir : va>vb ? sortDir : 0;
-    });
-  }
-
-  info.textContent = q
-    ? `${rows.length} / ${ALL.length} files`
-    : `${ALL.length} files`;
-
-  if(!rows.length){
-    tbody.innerHTML = '<tr><td colspan="4" class="no-results">No files match your search.</td></tr>';
-    return;
-  }
-
   const html = [];
-  // Grouped view (no active sort, no search)
-  if(sortCol === null && !q){
-    let lastGroup = null;
-    for(const e of ALL){
-      if(e.group !== lastGroup){
-        lastGroup = e.group;
-        const gc = groupStats[e.group];
-        html.push(`<tr class="grp-row"><td colspan="4">${esc(e.group)}&nbsp;`+
-          `<span style="color:${color(gc.pct)};font-weight:700">${gc.pct.toFixed(1)}%</span>`+
-          ` (${gc.covered}/${gc.executable})</td></tr>`);
-      }
-      html.push(rowHtml(e));
+  let totalVisible = 0;
+
+  for(const gname of groupOrder){
+    // Filter within this group
+    let rows = ALL.filter(e => e.group === gname);
+    if(q) rows = rows.filter(e =>
+      e.display.toLowerCase().includes(q) || e.file.toLowerCase().includes(q)
+    );
+
+    // Sort within this group
+    if(sortCol !== null){
+      rows = [...rows].sort((a,b)=>{
+        let va = a[sortCol], vb = b[sortCol];
+        if(typeof va==="string") va=va.toLowerCase(), vb=vb.toLowerCase();
+        return va<vb ? -sortDir : va>vb ? sortDir : 0;
+      });
     }
-  } else {
+
+    if(!rows.length) continue;   // hide entire group if nothing matches
+    totalVisible += rows.length;
+
+    // Recompute group stats from visible rows
+    const gc = rows.reduce((a,e)=>({covered:a.covered+e.covered, executable:a.executable+e.executable}),
+                           {covered:0, executable:0});
+    const gpct = gc.executable ? gc.covered/gc.executable*100 : 0;
+
+    html.push(
+      `<tr class="grp-row"><td colspan="4">${esc(gname)}&nbsp;`+
+      `<span style="color:${color(gpct)};font-weight:700">${gpct.toFixed(1)}%</span>`+
+      ` (${gc.covered}/${gc.executable})</td></tr>`
+    );
     for(const e of rows) html.push(rowHtml(e));
   }
 
-  tbody.innerHTML = html.join("");
+  info.textContent = q
+    ? `${totalVisible} / ${ALL.length} files`
+    : `${ALL.length} files`;
+
+  tbody.innerHTML = html.length
+    ? html.join("")
+    : '<tr><td colspan="4" class="no-results">No files match your search.</td></tr>';
 }
 
 function rowHtml(e){
@@ -332,30 +347,16 @@ function rowHtml(e){
     `</tr>`;
 }
 
-function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
-
 function setSort(col){
   if(sortCol===col){ sortDir*=-1; }
-  else { sortCol=col; sortDir = (col==="file") ? 1 : -1; }
+  else { sortCol=col; sortDir = (col==="display") ? 1 : -1; }
   document.querySelectorAll("th.sortable").forEach(th=>{
-    const arrow = th.dataset.col===col
-      ? (sortDir===1?" ↑":" ↓") : "";
+    const arrow = th.dataset.col===col ? (sortDir===1?" ↑":" ↓") : "";
     th.querySelector(".sort-arrow").textContent = arrow;
     th.classList.toggle("sorted", th.dataset.col===col);
   });
   render();
 }
-
-// Pre-compute group stats for headers
-const groupStats = {};
-ALL.forEach(e=>{
-  if(!groupStats[e.group]) groupStats[e.group]={covered:0,executable:0,pct:0};
-  groupStats[e.group].covered    += e.covered;
-  groupStats[e.group].executable += e.executable;
-});
-Object.values(groupStats).forEach(g=>{
-  g.pct = g.executable ? g.covered/g.executable*100 : 0;
-});
 
 document.getElementById("search").addEventListener("input", e=>{
   query = e.target.value;
