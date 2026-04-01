@@ -13,7 +13,7 @@ import NetworkRelay
 
 struct LoginStateKey: DependencyKey {
 	static var liveValue: LoginState {
-		@Dependency(UserSessionKey.self) var userSession
+		@Dependency(\.userSession) var userSession
 		return LoginState(userSession: userSession)
 	}
 	static var testValue: LoginState {
@@ -23,11 +23,23 @@ struct LoginStateKey: DependencyKey {
 
 struct TokenRetrierKey: DependencyKey {
 	static var liveValue: TokenRetrier {
-		@Dependency(UserSessionKey.self) var userSession
+		@Dependency(\.userSession) var userSession
 		return TokenRetrier(userSession: userSession)
 	}
 	static var testValue: TokenRetrier {
 		TokenRetrier(userSession: MockUserSession())
+	}
+}
+
+extension DependencyValues {
+	var loginState: LoginState {
+		get { self[LoginStateKey.self] }
+		set { self[LoginStateKey.self] = newValue }
+	}
+
+	var tokenRetrier: TokenRetrier {
+		get { self[TokenRetrierKey.self] }
+		set { self[TokenRetrierKey.self] = newValue }
 	}
 }
 
@@ -77,7 +89,7 @@ final class TokenRetrier: RequestRetrier, Sendable {
 
 	init(userSession: any UserSessionProtocol) {
 		self.userSession = userSession
-		@Dependency(UnauthorizedNetworkServiceKey.self) var networkingService
+		@Dependency(\.unauthorizedNetworkService) var networkingService
 		self.networkingService = networkingService
 	}
 

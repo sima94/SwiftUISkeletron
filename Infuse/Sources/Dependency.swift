@@ -11,11 +11,15 @@ import Foundation
 @propertyWrapper
 public struct Dependency<Value: Sendable>: @unchecked Sendable {
 
-	private let resolve: @Sendable () -> Value
+	private let resolve: () -> Value
 	private var resolved: Value?
 
+	public init(_ keyPath: KeyPath<DependencyValues, Value>) {
+		self.resolve = { DependencyValues.shared[keyPath: keyPath] }
+	}
+
 	public init<K: DependencyKey>(_ key: K.Type) where K.Value == Value {
-		self.resolve = { @Sendable in DependencyValues.shared.resolve(K.self) }
+		self.resolve = { DependencyValues.shared.resolve(K.self) }
 	}
 
 	public var wrappedValue: Value {

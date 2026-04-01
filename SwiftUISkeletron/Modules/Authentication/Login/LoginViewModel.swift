@@ -39,10 +39,10 @@ final class LoginViewModel {
 	var formValidator = FormValidator()
 
 	@ObservationIgnored
-	@Dependency(LoginStateKey.self) var loginState
+	@Dependency(\.loginState) var loginState
 
 	@ObservationIgnored
-	@Dependency(AuthServiceKey.self) var authenticationService
+	@Dependency(\.authenticationService) var authenticationService
 
 	// MARK: - Init
 

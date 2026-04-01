@@ -13,6 +13,13 @@ struct HomeRepositoryKey: DependencyKey {
 	static var testValue: any HomeRepositoryProtocol { MockHomeRepository() }
 }
 
+extension DependencyValues {
+	var homeRepository: any HomeRepositoryProtocol {
+		get { self[HomeRepositoryKey.self] }
+		set { self[HomeRepositoryKey.self] = newValue }
+	}
+}
+
 // MARK: - HomeRepository
 
 final class HomeRepository: HomeRepositoryProtocol {
@@ -21,8 +28,8 @@ final class HomeRepository: HomeRepositoryProtocol {
 	private let store: any HomeStoreServiceProtocol
 
 	init() {
-		@Dependency(HomeNetworkServiceKey.self) var network
-		@Dependency(HomeStoreServiceKey.self) var store
+		@Dependency(\.homeNetworkService) var network
+		@Dependency(\.homeStoreService) var store
 		self.network = network
 		self.store = store
 	}

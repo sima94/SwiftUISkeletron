@@ -20,7 +20,7 @@ final class AppTabViewModel: AppTabViewModelProtocol {
 	var isLoggedIn: Bool { loginState.isLoggedIn }
 
 	@ObservationIgnored
-	@Dependency(LoginStateKey.self) var loginState
+	@Dependency(\.loginState) var loginState
 
 	init() {
 		loginState.startObserving()

@@ -27,7 +27,7 @@ MVVM + Repository pattern with custom DI.
 | Repository | Orchestrates Network + Store | `final class XRepository` |
 | Network Service | API calls via NetworkRelay | `final class XNetworkService` |
 | Store Service | CoreData persistence | `StoreService<Model: Storable>` |
-| DI | Infuse framework | `@Dependency(XKey.self)` |
+| DI | Infuse framework | `@Dependency(\.service)` |
 | Navigation | Generic Router per module | `Router<Route, Sheet>` |
 
 ## Project Structure
@@ -53,7 +53,7 @@ MVVM + Repository pattern with custom DI.
 
 ### ViewModels
 - Always `@Observable @MainActor final class`
-- Dependencies via `@ObservationIgnored @Dependency(XKey.self) var service`
+- Dependencies via `@ObservationIgnored @Dependency(\.service) var service`
 - Expose protocol: `protocol XViewModelProtocol` — Views consume the protocol
 
 ### Views
@@ -76,8 +76,10 @@ MVVM + Repository pattern with custom DI.
 
 ### Dependency Injection (Infuse)
 - `struct XKey: DependencyKey` with `liveValue` and `testValue`
+- Register key in `DependencyValues` via computed property:
+  `var service: ServiceType { get { self[XKey.self] } set { self[XKey.self] = newValue } }`
 - DependencyKey + Mock live in same file as implementation
-- Resolve: `@Dependency(XKey.self) var service`
+- Resolve: `@Dependency(\.service) var service`
 - Flow scoping: `DependencyValues.shared.endFlow(.flowName)` to clean up
 
 ### DataLayer (Repository Pattern)

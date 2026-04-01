@@ -13,6 +13,13 @@ struct CoreDataStackKey: DependencyKey {
 	static var testValue: CoreDataStack { CoreDataStack(inMemory: true) }
 }
 
+extension DependencyValues {
+	var coreDataStack: CoreDataStack {
+		get { self[CoreDataStackKey.self] }
+		set { self[CoreDataStackKey.self] = newValue }
+	}
+}
+
 // MARK: - CoreDataStack
 
 final class CoreDataStack: Sendable {

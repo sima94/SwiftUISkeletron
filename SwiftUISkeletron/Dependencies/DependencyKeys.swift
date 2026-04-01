@@ -33,10 +33,10 @@ struct EndpointKey: DependencyKey {
 
 struct NetworkServiceKey: DependencyKey {
 	static var liveValue: any NetworkingServiceProtocol {
-		@Dependency(URLSessionKey.self) var session
-		@Dependency(EndpointKey.self) var endpoint
-		@Dependency(UserSessionKey.self) var userSession
-		@Dependency(TokenRetrierKey.self) var tokenRetrier
+		@Dependency(\.urlSession) var session
+		@Dependency(\.endpoint) var endpoint
+		@Dependency(\.userSession) var userSession
+		@Dependency(\.tokenRetrier) var tokenRetrier
 		return NetworkingService(
 			session: session,
 			endpoint: endpoint,
@@ -52,8 +52,8 @@ struct NetworkServiceKey: DependencyKey {
 
 struct UnauthorizedNetworkServiceKey: DependencyKey {
 	static var liveValue: any NetworkingServiceProtocol {
-		@Dependency(URLSessionKey.self) var session
-		@Dependency(EndpointKey.self) var endpoint
+		@Dependency(\.urlSession) var session
+		@Dependency(\.endpoint) var endpoint
 		return NetworkingService(
 			session: session,
 			endpoint: endpoint,
@@ -64,6 +64,30 @@ struct UnauthorizedNetworkServiceKey: DependencyKey {
 	}
 	static var testValue: any NetworkingServiceProtocol {
 		MockNetworkingService()
+	}
+}
+
+// MARK: - Dependency Values
+
+extension DependencyValues {
+	var urlSession: URLSession {
+		get { self[URLSessionKey.self] }
+		set { self[URLSessionKey.self] = newValue }
+	}
+
+	var endpoint: Endpoint {
+		get { self[EndpointKey.self] }
+		set { self[EndpointKey.self] = newValue }
+	}
+
+	var networkService: any NetworkingServiceProtocol {
+		get { self[NetworkServiceKey.self] }
+		set { self[NetworkServiceKey.self] = newValue }
+	}
+
+	var unauthorizedNetworkService: any NetworkingServiceProtocol {
+		get { self[UnauthorizedNetworkServiceKey.self] }
+		set { self[UnauthorizedNetworkServiceKey.self] = newValue }
 	}
 }
 

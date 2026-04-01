@@ -10,11 +10,18 @@ import Infuse
 
 struct HomeStoreServiceKey: DependencyKey {
 	static var liveValue: any HomeStoreServiceProtocol {
-		@Dependency(CoreDataStackKey.self) var coreData
+		@Dependency(\.coreDataStack) var coreData
 		return StoreService<HomeListData>(coreData: coreData)
 	}
 	static var testValue: any HomeStoreServiceProtocol {
 		MockHomeStoreService()
+	}
+}
+
+extension DependencyValues {
+	var homeStoreService: any HomeStoreServiceProtocol {
+		get { self[HomeStoreServiceKey.self] }
+		set { self[HomeStoreServiceKey.self] = newValue }
 	}
 }
 
