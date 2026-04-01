@@ -34,6 +34,50 @@
             endingLineNumber = "63"
             landmarkName = "login()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "25BFC81A-2A69-45E6-ABAE-8006F58D62B0 - 1403439e33a066af"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for SwiftUISkeletron.LoginViewModel.login() async -&gt; ()"
+                  moduleName = "SwiftUISkeletron.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/stefansimic/Documents/IOS/SwiftUISkeletron/SwiftUISkeletron/Modules/Authentication/Login/LoginViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "63"
+                  endingLineNumber = "63">
+               </Location>
+               <Location
+                  uuid = "25BFC81A-2A69-45E6-ABAE-8006F58D62B0 - 2e803a57b14511da"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for SwiftUISkeletron.LoginViewModel.login() async -&gt; ()"
+                  moduleName = "SwiftUISkeletron.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/stefansimic/Documents/IOS/SwiftUISkeletron/SwiftUISkeletron/Modules/Authentication/Login/LoginViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "63"
+                  endingLineNumber = "63">
+               </Location>
+               <Location
+                  uuid = "25BFC81A-2A69-45E6-ABAE-8006F58D62B0 - 4091f4b82d8d6daa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for SwiftUISkeletron.LoginViewModel.login() async -&gt; ()"
+                  moduleName = "SwiftUISkeletron.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/stefansimic/Documents/IOS/SwiftUISkeletron/SwiftUISkeletron/Modules/Authentication/Login/LoginViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "63"
+                  endingLineNumber = "63">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

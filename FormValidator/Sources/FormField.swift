@@ -15,6 +15,7 @@ public final class FormField<Value: Sendable & Equatable>: Validatable {
 	public var wrappedValue: Value {
 		didSet {
 			guard wrappedValue != oldValue else { return }
+			syncFormattedText()
 			if autoValidate && isEnabled {
 				validate()
 			} else if error != nil || !errors.isEmpty {
@@ -47,6 +48,14 @@ public final class FormField<Value: Sendable & Equatable>: Validatable {
 	public let autoValidate: Bool
 	public let errorDisplayMode: ErrorDisplayMode
 
+	/// Type-erased formatter storage. Cast to `TextFormatter` in `FormField+SwiftUI.swift`.
+	@ObservationIgnored
+	public let _formatter: Any?
+
+	/// Formatted text for TextField display. Observed by SwiftUI to trigger re-renders.
+	/// Only used when a `TextFormatter` is configured and `Value == String`.
+	public var _formattedText: String = ""
+
 	private var syncRules: [AnyValidationRule<Value>]
 	private var asyncRules: [AnyAsyncValidationRule<Value>]
 	private var dependents: [any Validatable] = []
@@ -62,13 +71,18 @@ public final class FormField<Value: Sendable & Equatable>: Validatable {
 		rules: [AnyValidationRule<Value>] = [],
 		asyncRules: [AnyAsyncValidationRule<Value>] = [],
 		autoValidate: Bool = false,
-		errorDisplayMode: ErrorDisplayMode = .first
+		errorDisplayMode: ErrorDisplayMode = .first,
+		formatter: (any TextFormatter)? = nil
 	) {
 		self.wrappedValue = wrappedValue
 		self.syncRules = rules
 		self.asyncRules = asyncRules
 		self.autoValidate = autoValidate
 		self.errorDisplayMode = errorDisplayMode
+		self._formatter = formatter
+		if let formatter = formatter, let raw = wrappedValue as? String {
+			self._formattedText = formatter.format(raw)
+		}
 	}
 
 	// MARK: - Sync Validation
@@ -214,6 +228,14 @@ public final class FormField<Value: Sendable & Equatable>: Validatable {
 	}
 
 	// MARK: - Private
+
+	/// Syncs `_formattedText` from `wrappedValue` when a `TextFormatter` is configured.
+	private func syncFormattedText() {
+		if let formatter = _formatter as? any TextFormatter,
+		   let raw = wrappedValue as? String {
+			_formattedText = formatter.format(raw)
+		}
+	}
 
 	private func revalidateDependents() {
 		for dependent in dependents {
