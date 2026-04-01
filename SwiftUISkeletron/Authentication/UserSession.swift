@@ -22,6 +22,13 @@ struct UserSessionKey: DependencyKey {
 	static var testValue: any UserSessionProtocol { MockUserSession() }
 }
 
+extension DependencyValues {
+	var userSession: any UserSessionProtocol {
+		get { self[UserSessionKey.self] }
+		set { self[UserSessionKey.self] = newValue }
+	}
+}
+
 // MARK: - Mock (for tests)
 
 actor MockUserSession: UserSessionProtocol {

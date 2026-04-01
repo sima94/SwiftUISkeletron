@@ -25,6 +25,13 @@ public final class DependencyValues: @unchecked Sendable {
 
 	// MARK: - Resolution
 
+	/// Resolves or overrides a dependency using key-like access.
+	/// Mirrors `EnvironmentValues` ergonomics while preserving Infuse scoping.
+	public subscript<K: DependencyKey>(_ key: K.Type) -> K.Value {
+		get { resolve(key) }
+		set { override(key, with: newValue) }
+	}
+
 	/// Resolves a dependency by its key type.
 	public func resolve<K: DependencyKey>(_ key: K.Type) -> K.Value {
 		let id = ObjectIdentifier(key)

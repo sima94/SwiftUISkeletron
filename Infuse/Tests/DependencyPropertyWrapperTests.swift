@@ -15,8 +15,8 @@ struct DependencyPropertyWrapperTests {
 
 	@Test("property wrapper resolves value")
 	func propertyWrapperResolves() {
-		DependencyValues.shared.override(StringKey.self, with: "injected")
-		@Dependency(StringKey.self) var value
+		DependencyValues.shared.string = "injected"
+		@Dependency(\.string) var value
 		#expect(value == "injected")
 		DependencyValues.shared.removeOverride(StringKey.self)
 	}
@@ -24,22 +24,22 @@ struct DependencyPropertyWrapperTests {
 	@Test("property wrapper lazily resolves on first access")
 	func lazyResolution() {
 		// Override AFTER creating the wrapper — should pick up the override
-		@Dependency(StringKey.self) var value
-		DependencyValues.shared.override(StringKey.self, with: "lazy-injected")
+		@Dependency(\.string) var value
+		DependencyValues.shared.string = "lazy-injected"
 		#expect(value == "lazy-injected")
 		DependencyValues.shared.removeOverride(StringKey.self)
 	}
 
 	@Test("property wrapper caches value after first access")
 	func cachesAfterFirstAccess() {
-		DependencyValues.shared.override(StringKey.self, with: "first")
-		@Dependency(StringKey.self) var value
+		DependencyValues.shared.string = "first"
+		@Dependency(\.string) var value
 
 		// First access caches "first"
 		#expect(value == "first")
 
 		// Change override — cached value should not change
-		DependencyValues.shared.override(StringKey.self, with: "second")
+		DependencyValues.shared.string = "second"
 		#expect(value == "first")
 
 		DependencyValues.shared.removeOverride(StringKey.self)

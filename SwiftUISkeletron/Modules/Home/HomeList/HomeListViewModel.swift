@@ -18,7 +18,7 @@ final class HomeListViewModel: HomeListViewModelProtocol {
 	var error: (any Error)?
 
 	@ObservationIgnored
-	@Dependency(HomeRepositoryKey.self) var repository
+	@Dependency(\.homeRepository) var repository
 
 	@ObservationIgnored
 	private var observeTask: Task<Void, Never>?

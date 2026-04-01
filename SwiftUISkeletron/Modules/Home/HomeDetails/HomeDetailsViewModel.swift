@@ -29,7 +29,7 @@ final class HomeDetailsViewModel: HomeDetailsViewModelProtocol {
 	var data: String?
 
 	@ObservationIgnored
-	@Dependency(HomeNetworkServiceKey.self) var homeService
+	@Dependency(\.homeNetworkService) var homeService
 
 	// MARK: - Init
 

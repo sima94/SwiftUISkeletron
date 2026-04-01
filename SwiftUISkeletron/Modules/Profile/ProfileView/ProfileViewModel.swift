@@ -15,7 +15,7 @@ final class ProfileViewModel {
 	var isLoggedIn: Bool { loginState.isLoggedIn }
 
 	@ObservationIgnored
-	@Dependency(LoginStateKey.self) var loginState
+	@Dependency(\.loginState) var loginState
 
 	func logout() async {
 		await loginState.logout()

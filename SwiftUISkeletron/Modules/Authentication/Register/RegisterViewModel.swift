@@ -48,13 +48,37 @@ final class RegisterViewModel {
 	@FormField(rules: [Rules.required(), Rules.email()], autoValidate: true)
 	var email: String = ""
 
+	@ObservationIgnored
+	@FormField(
+		rules: [Rules.required(), Rules.minLength(10, message: "Phone number is too short")],
+		autoValidate: true,
+		formatter: PhoneFormatter(pattern: "+### ## ### ####")
+	)
+	var phone: String = ""
+
+	@ObservationIgnored
+	@FormField(
+		rules: [Rules.required(), Rules.regex("^[A-Z]{2}\\d{2}[A-Z0-9]{4,30}$", message: "Invalid IBAN")],
+		autoValidate: true,
+		formatter: IBANFormatter()
+	)
+	var iban: String = ""
+
+	@ObservationIgnored
+	@FormField(
+		rules: [Rules.required(), Rules.custom(message: "Amount must be greater than 0") { Double($0).map { $0 > 0 } ?? false }],
+		autoValidate: true,
+		formatter: AmountFormatter()
+	)
+	var amount: String = ""
+
 	var isLoading: Bool = false
 
 	@ObservationIgnored
 	var formValidator = FormValidator()
 
 	@ObservationIgnored
-	@Dependency(AuthServiceKey.self) var authenticationService
+	@Dependency(\.authenticationService) var authenticationService
 
 	// MARK: - Init
 

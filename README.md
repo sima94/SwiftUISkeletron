@@ -41,7 +41,7 @@ MVVM + Repository pattern with custom DI and per-module routing.
 | **Repository** | Orchestrates Network + Store | `final class XRepository` |
 | **Network Service** | API calls via NetworkRelay | `final class XNetworkService` |
 | **Store Service** | CoreData persistence | `StoreService<Model: Storable>` |
-| **DI** | Dependency resolution | `@Dependency(XKey.self)` |
+| **DI** | Dependency resolution | `@Dependency(\.service)` |
 | **Navigation** | Routing per module | `Router<Route, Sheet>` |
 
 ### Event Stream (Child → Parent)
@@ -112,8 +112,15 @@ struct AuthServiceKey: DependencyKey {
     static var testValue: any AuthServiceProtocol { MockAuthService() }
 }
 
+extension DependencyValues {
+    var authenticationService: any AuthServiceProtocol {
+        get { self[AuthServiceKey.self] }
+        set { self[AuthServiceKey.self] = newValue }
+    }
+}
+
 // Resolve in ViewModel
-@ObservationIgnored @Dependency(AuthServiceKey.self) var authService
+@ObservationIgnored @Dependency(\.authenticationService) var authService
 ```
 
 **Scopes:**

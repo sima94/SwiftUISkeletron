@@ -1,4 +1,4 @@
-# CLAUDE.md — SwiftUISkeletron
+# AGENTS.md — SwiftUISkeletron
 
 ## Quick Reference
 
@@ -150,4 +150,4 @@ Use tokens from `DesignSystem/Tokens.swift` instead of raw values:
 
 ## Documentation Maintenance
 
-When you discover that this CLAUDE.md or any AGENTS.md is inaccurate or missing information that caused confusion or a failed attempt, update the relevant documentation. Every change should leave the document shorter or more useful, ideally both.
+When you discover that this AGENTS.md or any AGENTS.md is inaccurate or missing information that caused confusion or a failed attempt, update the relevant documentation. Every change should leave the document shorter or more useful, ideally both.

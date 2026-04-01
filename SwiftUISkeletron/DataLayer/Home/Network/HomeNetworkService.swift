@@ -13,11 +13,18 @@ import NetworkRelay
 
 struct HomeNetworkServiceKey: DependencyKey {
 	static var liveValue: any HomeNetworkServiceProtocol {
-		@Dependency(NetworkServiceKey.self) var network
+		@Dependency(\.networkService) var network
 		return HomeNetworkService(networkService: network)
 	}
 	static var testValue: any HomeNetworkServiceProtocol {
 		MockHomeNetworkService()
+	}
+}
+
+extension DependencyValues {
+	var homeNetworkService: any HomeNetworkServiceProtocol {
+		get { self[HomeNetworkServiceKey.self] }
+		set { self[HomeNetworkServiceKey.self] = newValue }
 	}
 }
 

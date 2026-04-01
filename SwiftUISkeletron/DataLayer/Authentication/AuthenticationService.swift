@@ -27,6 +27,13 @@ struct AuthServiceKey: DependencyKey {
 	}
 }
 
+extension DependencyValues {
+	var authenticationService: any AuthenticationServiceProtocol {
+		get { self[AuthServiceKey.self] }
+		set { self[AuthServiceKey.self] = newValue }
+	}
+}
+
 // MARK: - AuthenticationService
 
 final class AuthenticationService: AuthenticationServiceProtocol, Sendable {
@@ -35,8 +42,8 @@ final class AuthenticationService: AuthenticationServiceProtocol, Sendable {
 	let networkService: any NetworkingServiceProtocol
 
 	init() {
-		@Dependency(UnauthorizedNetworkServiceKey.self) var networkService
-		@Dependency(UserSessionKey.self) var userSession
+		@Dependency(\.unauthorizedNetworkService) var networkService
+		@Dependency(\.userSession) var userSession
 		self.networkService = networkService
 		self.userSession = userSession
 	}

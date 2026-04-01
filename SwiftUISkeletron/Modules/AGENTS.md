@@ -47,7 +47,7 @@ final class FeatureViewModel: FeatureViewModelProtocol {
 
     // Dependencies (always @ObservationIgnored)
     @ObservationIgnored
-    @Dependency(ServiceKey.self) var service
+    @Dependency(\.service) var service
 
     // Actions
     func fetchData() async { ... }

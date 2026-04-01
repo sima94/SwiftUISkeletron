@@ -49,6 +49,27 @@ struct RegisterView: View {
 						Text(error).foregroundColor(AppColor.errorText)
 					}
 				}
+
+				Section("Formatted Fields") {
+					TextField("Phone", text: viewModel.$phone.textBinding)
+						.keyboardType(.phonePad)
+					if let error = viewModel.$phone.error?.message {
+						Text(error).foregroundColor(AppColor.errorText)
+					}
+
+					TextField("IBAN", text: viewModel.$iban.textBinding)
+						.textInputAutocapitalization(.characters)
+						.keyboardType(.asciiCapable)
+					if let error = viewModel.$iban.error?.message {
+						Text(error).foregroundColor(AppColor.errorText)
+					}
+
+					TextField("Amount", text: viewModel.$amount.textBinding)
+						.keyboardType(.decimalPad)
+					if let error = viewModel.$amount.error?.message {
+						Text(error).foregroundColor(AppColor.errorText)
+					}
+				}
 			}
 
 			Button(action: {
